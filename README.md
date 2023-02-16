@@ -10,7 +10,7 @@ Despite these considerations, I wanted to study how the distribution, but primar
 
 The overarching prupose of my task was to visualise sampling bias. 
 
-![figure1](outputs/convex_hull_garden_skink_through_years.png)
+![figure1](outputs/convex_hull_garden_skink_through_years_new.png)
 
 From this preliminary plot, and considering that the area values are partially incorrect (see code for more detail), it does seem that 2020 and 2021 (covid years) had the highest values of occurrence area for the garden skink. This may have been a result of many spatially separated observations (i.e. making the convex polygon really big) or many people where outside/ in their gardens and providing occurrence data.
 
