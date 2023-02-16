@@ -1,5 +1,5 @@
 # skinks-occurrences
-Studying sampling bias for the garden skink, using data from ALA for the Data Analyst Task. 
+Studying sampling bias for the garden skink.
 
 ### Task description and objectives
 The minimum convex hull is a way to represent the location and distribution of a species and it is dependent on occurrence points. 
