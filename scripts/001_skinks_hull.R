@@ -1,6 +1,6 @@
 #Author: Sebastian L
 #Created: 14/03/2023
-#Updated: 14/03/2023
+#Updated: 16/03/2023
 
 #-- DESCRIPTION --#
 #A script that calculates the area of the minimum convex hull from human observations from 2015 to 2022.
@@ -18,6 +18,7 @@ library(tidyverse) #data wrangling
 library(sp) #spatial mapping 
 library(geosphere) #spatial wrangling - area calculation
 library(ggthemes) #ggplot themese
+library(patchwork) #plotting arrangement
 
 #install.packages('rjson', 'jsonlite', 'httr', 'tidyverse', 'sp', 'geosphere', 'ggthemes') #Recommend using CRAN Mirror 2(CSIRO AU)
 
@@ -70,7 +71,7 @@ chull_function <- function(data, years){
 
     polygons <- as.data.frame(ds1[hull,])
     
-    ds2<- as.data.frame(geosphere::areaPolygon(polygons))%>% #calculate area of polygon #TODO #3 #2
+    ds2<- as.data.frame(geosphere::areaPolygon(polygons))%>% #calculate area of polygon #TODO #3
         rename(area = 1) %>% #rename column to area
         mutate(year = years) #add year to the dataframe
 
@@ -80,13 +81,42 @@ chull_function <- function(data, years){
 #-- RUN THE FUNCTION --#
 area_per_year <- bind_rows(lapply(1:nrow(years), function(x){chull_function(data_skinks, years$year[x])}))
 
+# -- INCLUDE OBSERVATIONS COUNT INTO THE DATAFRAME --#
+area_per_year <- full_join(area_per_year, years, by='year') %>%
+                rename(observations = 3)
+
 #-- PLOT THE AREAS--#
 p1<-ggplot(area_per_year, aes(x = as.factor(year), y = sqrt(area))) + #TODO: #1 transforming the area to a sqrt just for visualisation of this test. But values are incorrect.
     geom_segment(aes(x=as.factor(year) ,xend=as.factor(year), y=0, yend=sqrt(area)), color="grey") +
     geom_point(size=5, color="#69b3a2")  +
     labs(x = "Year", y = "Area of Convex Hull") +
     coord_flip()+
-    theme_clean(base_size = 15)
+    theme_clean(base_size = 13)
+
+#-- PLOT THE OBSERVATIONS --#
+p2<- ggplot(area_per_year, aes(x = as.factor(year), y = observations)) + 
+    geom_segment(aes(x=as.factor(year) ,xend=as.factor(year), y=0, yend=observations), color="grey")+
+    geom_point(size=5, color="#E2725B")  +
+    labs(x = "Year", y = "Human Observations ALA") +
+    coord_flip()+
+    theme_clean(base_size = 13)
+
+#-- PLOT THE CONVEX HULL OF THE YEAR WITH MORE OBSERVATIONS --#
+#2021
+chull2021 <- data_skinks %>%
+        filter(year == 2021) %>%
+        select(longitude, latitude) %>%
+        na.omit()  #omit any data with no lat and long 
+hull2021 <- chull(chull2021)  #convex polygon
+polygons <- as.data.frame(chull2021[hull2021,])
+
+map <- ggplot(polygons, aes(x=longitude, y = latitude)) +
+        geom_polygon(fill = "lightblue", alpha =0.5) +
+        theme_classic(base_size=13) +
+        labs(title = '2021 Convex Hull')
+
+#-- PLOT ALL INTO A STATIC FIGURE
+(p1 | p2) /map
 
 #--SAVE GGPPLOT --#
 ggsave('outputs/convex_hull_garden_skink_through_years.png')
