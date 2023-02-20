@@ -65,10 +65,10 @@ area_per_year <- full_join(area_per_year, years, by='year') %>%
                 rename(observations = 3)
 
 #-- PLOT THE AREAS--#
-p1<-ggplot(area_per_year, aes(x = as.factor(year), y = sqrt(area))) + #TODO: #1 transforming the area to a sqrt just for visualisation of this test. But values are incorrect.
-    geom_segment(aes(x=as.factor(year) ,xend=as.factor(year), y=0, yend=sqrt(area)), color="grey") +
+p1<-ggplot(area_per_year, aes(x = as.factor(year), y = area)) + 
+    geom_segment(aes(x=as.factor(year) ,xend=as.factor(year), y=0, yend=area), color="grey") +
     geom_point(size=5, color="#69b3a2")  +
-    labs(x = "Year", y = "Area of Convex Hull") +
+    labs(x = "Year", y = "Area of Convex Hull (km2)") +
     coord_flip()+
     theme_clean(base_size = 13)
 
@@ -89,7 +89,7 @@ map_2021 <- mapping_chull(data_skinks, '2021')
 (p1 | p2) /(map_2020 | map_2021)
 
 #--SAVE GGPPLOT --#
-ggsave('outputs/convex_hull_garden_skink_through_years.png')
+ggsave('outputs/convex_hull_garden_skink_through_years_newv2.png')
 
 
 #-- ARE THE AREAS STATISTICALLY DIFFERENT TO EACH OTHER --#

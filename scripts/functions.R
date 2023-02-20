@@ -15,7 +15,7 @@ convex_polygon_dataframe <- function(data){
 }
 
 convex_area_calculation <- function(data){
-    ds2<- as.data.frame(geosphere::areaPolygon(data)) #calculate area of polygon #TODO #3
+    ds2<- as.data.frame(geosphere::areaPolygon(data)*0.000001) #turning square m into km2
     return(ds2)
 }
 
@@ -43,13 +43,13 @@ mapping_chull <- function(data, years){
         map <- ggplot(d2, aes(x=longitude, y = latitude)) +
             geom_polygon(fill = "#2D5D7B", alpha =0.5) +
             theme_classic(base_size=13) +
-            labs(title = paste0(years, 'Convex Hull', sep=' '))
+            labs(title = paste(years, 'Convex Hull', sep=' '))
     }
     else {
         map <- ggplot(d2, aes(x=longitude, y = latitude)) +
             geom_polygon(fill = "#C2AFF0", alpha =0.5) +
             theme_classic(base_size=13) +
-            labs(title = paste0(years, 'Convex Hull', sep=' '))
+            labs(title = paste(years, 'Convex Hull (acres)', sep=' '))
     }
     return(map)
 }
