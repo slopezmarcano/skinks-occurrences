@@ -3,7 +3,7 @@
 #Updated: 16/03/2023
 
 #-- DESCRIPTION --#
-#A script that calculates the area of the minimum convex hull from human observations from 2015 to 2022.
+#A script that calculates the area of the minimum convex hull from human observations from 2005 to 2022.
 #The overall objective was to observe if the distribution (convex hull) decreased during covid years. 
 
 
@@ -21,6 +21,10 @@ library(ggthemes) #ggplot themese
 library(patchwork) #plotting arrangement
 
 #install.packages('rjson', 'jsonlite', 'httr', 'tidyverse', 'sp', 'geosphere', 'ggthemes') #Recommend using CRAN Mirror 2(CSIRO AU)
+
+#-- SOURCE THE FUNCTIONS DEVELOPED FOR THIS SCRIPT --#
+source('scripts/functions.R')
+
 
 #-- API REQUEST AND JSON TO DATAFRAME --#
 #api link provided by ALA
@@ -45,7 +49,7 @@ data <- as_tibble(keydf)
 data_skinks <- data %>%
     filter(
         vernacularName =='Dark-flecked Garden Sunskink',
-        year >=2012 & year <=2022,
+        year >=2005 & year <=2022,
         basisOfRecord == 'HUMAN_OBSERVATION')%>%
     rename(
         latitude = decimalLatitude,
@@ -57,28 +61,7 @@ years <- data_skinks %>%
     count()
 
 #-- CALCULATE CONVEX HULL --#
-# Calculate the convex hull for each year
-chull_function <- function(data, years){
-    #data frame with occurrences
-    #year column in a dataframe called years for each unique year of observation
-    
-    ds1 <- data %>%
-        filter(year == years) %>%
-        select(longitude, latitude) %>%
-        na.omit() #omit any data with no lat and long
-    
-    hull <- chull(ds1) #convex polygon
-
-    polygons <- as.data.frame(ds1[hull,])
-    
-    ds2<- as.data.frame(geosphere::areaPolygon(polygons))%>% #calculate area of polygon #TODO #3
-        rename(area = 1) %>% #rename column to area
-        mutate(year = years) #add year to the dataframe
-
-    return(ds2)   
-}
-
-#-- RUN THE FUNCTION --#
+# Calculate the convex hull area for each year
 area_per_year <- bind_rows(lapply(1:nrow(years), function(x){chull_function(data_skinks, years$year[x])}))
 
 # -- INCLUDE OBSERVATIONS COUNT INTO THE DATAFRAME --#
@@ -101,25 +84,19 @@ p2<- ggplot(area_per_year, aes(x = as.factor(year), y = observations)) +
     coord_flip()+
     theme_clean(base_size = 13)
 
-#-- PLOT THE CONVEX HULL OF THE YEAR WITH MORE OBSERVATIONS --#
-#2021
-chull2021 <- data_skinks %>%
-        filter(year == 2021) %>%
-        select(longitude, latitude) %>%
-        na.omit()  #omit any data with no lat and long 
-hull2021 <- chull(chull2021)  #convex polygon
-polygons <- as.data.frame(chull2021[hull2021,])
-
-map <- ggplot(polygons, aes(x=longitude, y = latitude)) +
-        geom_polygon(fill = "lightblue", alpha =0.5) +
-        theme_classic(base_size=13) +
-        labs(title = '2021 Convex Hull')
+#-- PLOT THE CONVEX HULL OF THE YEAR WITH MORE OBSERVATIONS OR LARGER AREA --#
+#2021 and #2020
+map_2020 <- mapping_chull(data_skinks, '2020')
+map_2021 <- mapping_chull(data_skinks, '2021')
 
 #-- PLOT ALL INTO A STATIC FIGURE
-(p1 | p2) /map
+(p1 | p2) /(map_2020 | map_2021)
 
 #--SAVE GGPPLOT --#
 ggsave('outputs/convex_hull_garden_skink_through_years.png')
 
 #-- END TIME --#
     #12:45 PM AEST
+
+#-- ARE THE AREAS STATISTICALLY DIFFERENT TO EACH OTHER --#
+#Performing a Kruskal-Wallis test as a non-parametric test that does not assume normality
