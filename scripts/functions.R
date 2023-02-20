@@ -49,7 +49,7 @@ mapping_chull <- function(data, years){
         map <- ggplot(d2, aes(x=longitude, y = latitude)) +
             geom_polygon(fill = "#C2AFF0", alpha =0.5) +
             theme_classic(base_size=13) +
-            labs(title = paste(years, 'Convex Hull (acres)', sep=' '))
+            labs(title = paste(years, 'Convex Hull', sep=' '))
     }
     return(map)
 }
