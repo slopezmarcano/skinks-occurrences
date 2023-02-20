@@ -15,7 +15,7 @@ convex_polygon_dataframe <- function(data){
 }
 
 convex_area_calculation <- function(data){
-    ds2<- as.data.frame(geosphere::areaPolygon(polygons)) #calculate area of polygon #TODO #3
+    ds2<- as.data.frame(geosphere::areaPolygon(data)) #calculate area of polygon #TODO #3
     return(ds2)
 }
 
@@ -24,8 +24,8 @@ chull_area_function <- function(data, years){
     #year column in a dataframe called years for each unique year of observation
     
    d1<- prepare_data_for_chull(data, years)
-   d2 <- convex_polygon_dataframe(data)
-   d3<- convex_area_calculation(data)
+   d2 <- convex_polygon_dataframe(d1)
+   d3<- convex_area_calculation(d2)
 
    d4<- d3 %>%
    rename(area=1) %>% #rename column to area
@@ -37,17 +37,16 @@ chull_area_function <- function(data, years){
 mapping_chull <- function(data, years){
     
     d1<- prepare_data_for_chull(data, years)
-   d2 <- convex_polygon_dataframe(data)
-   d3<- convex_area_calculation(data)
+   d2 <- convex_polygon_dataframe(d1)
     
     if (years == 2020){
-        map <- ggplot(polygons, aes(x=longitude, y = latitude)) +
+        map <- ggplot(d2, aes(x=longitude, y = latitude)) +
             geom_polygon(fill = "#2D5D7B", alpha =0.5) +
             theme_classic(base_size=13) +
             labs(title = paste0(years, 'Convex Hull', sep=' '))
     }
     else {
-        map <- ggplot(polygons, aes(x=longitude, y = latitude)) +
+        map <- ggplot(d2, aes(x=longitude, y = latitude)) +
             geom_polygon(fill = "#C2AFF0", alpha =0.5) +
             theme_classic(base_size=13) +
             labs(title = paste0(years, 'Convex Hull', sep=' '))

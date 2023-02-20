@@ -1,14 +1,11 @@
 #Author: Sebastian L
 #Created: 14/03/2023
-#Updated: 16/03/2023
+#Updated: 20/03/2023
 
 #-- DESCRIPTION --#
 #A script that calculates the area of the minimum convex hull from human observations from 2005 to 2022.
 #The overall objective was to observe if the distribution (convex hull) decreased during covid years. 
 
-
-#-- START TIME --#
-    #11:30 AM AEST
 
 #-- LIBRARIES --# 
 library(rjson) #json wrangling and requests 
@@ -24,7 +21,6 @@ library(patchwork) #plotting arrangement
 
 #-- SOURCE THE FUNCTIONS DEVELOPED FOR THIS SCRIPT --#
 source('scripts/functions.R')
-
 
 #-- API REQUEST AND JSON TO DATAFRAME --#
 #api link provided by ALA
@@ -62,7 +58,7 @@ years <- data_skinks %>%
 
 #-- CALCULATE CONVEX HULL --#
 # Calculate the convex hull area for each year
-area_per_year <- bind_rows(lapply(1:nrow(years), function(x){chull_function(data_skinks, years$year[x])}))
+area_per_year <- bind_rows(lapply(1:nrow(years), function(x){chull_area_function(data_skinks, years$year[x])}))
 
 # -- INCLUDE OBSERVATIONS COUNT INTO THE DATAFRAME --#
 area_per_year <- full_join(area_per_year, years, by='year') %>%
@@ -95,8 +91,6 @@ map_2021 <- mapping_chull(data_skinks, '2021')
 #--SAVE GGPPLOT --#
 ggsave('outputs/convex_hull_garden_skink_through_years.png')
 
-#-- END TIME --#
-    #12:45 PM AEST
 
 #-- ARE THE AREAS STATISTICALLY DIFFERENT TO EACH OTHER --#
 #Performing a Kruskal-Wallis test as a non-parametric test that does not assume normality
