@@ -17,7 +17,7 @@ library(geosphere) #spatial wrangling - area calculation
 library(ggthemes) #ggplot themese
 library(patchwork) #plotting arrangement
 
-#install.packages('rjson', 'jsonlite', 'httr', 'tidyverse', 'sp', 'geosphere', 'ggthemes') #Recommend using CRAN Mirror 2(CSIRO AU)
+#install.packages(c('rjson', 'jsonlite', 'httr', 'tidyverse', 'sp', 'geosphere', 'ggthemes', 'patchwork') #Recommend using CRAN Mirror 2(CSIRO AU)
 
 #-- SOURCE THE FUNCTIONS DEVELOPED FOR THIS SCRIPT --#
 source('scripts/functions.R')
@@ -66,19 +66,27 @@ area_per_year <- full_join(area_per_year, years, by='year') %>%
 
 #-- PLOT THE AREAS--#
 p1<-ggplot(area_per_year, aes(x = as.factor(year), y = area)) + 
-    geom_segment(aes(x=as.factor(year) ,xend=as.factor(year), y=0, yend=area), color="grey") +
-    geom_point(size=5, color="#69b3a2")  +
+    geom_segment(aes(x=as.factor(year) ,xend=as.factor(year), y=0, yend=area), color="#f4a261") +
+    geom_point(size=8, color="#e76f51")  +
     labs(x = "Year", y = "Area of Convex Hull (km2)") +
     coord_flip()+
-    theme_clean(base_size = 13)
+    theme_clean(base_family = "Helvetica")+
+    theme(panel.background = element_rect(fill = "#264653"),
+        plot.background = element_rect(fill="#264653"),
+        axis.text = element_text(color = "#f1faee", size = 13),
+        axis.title = element_text(color = "#e9c46a", size = 16))
 
 #-- PLOT THE OBSERVATIONS --#
 p2<- ggplot(area_per_year, aes(x = as.factor(year), y = observations)) + 
-    geom_segment(aes(x=as.factor(year) ,xend=as.factor(year), y=0, yend=observations), color="grey")+
+    geom_segment(aes(x=as.factor(year) ,xend=as.factor(year), y=0, yend=observations), color="#f4a261")+
     geom_point(size=5, color="#E2725B")  +
     labs(x = "Year", y = "Human Observations ALA") +
     coord_flip()+
-    theme_clean(base_size = 13)
+    theme_clean(base_family = "Helvetica")+
+    theme(panel.background = element_rect(fill = "#264653"),
+        plot.background = element_rect(fill="#264653"),
+        axis.text = element_text(color = "#f1faee", size = 13),
+        axis.title = element_text(color = "#e9c46a", size = 16))
 
 #-- PLOT THE CONVEX HULL OF THE YEAR WITH MORE OBSERVATIONS OR LARGER AREA --#
 #2021 and #2020
@@ -92,5 +100,4 @@ map_2021 <- mapping_chull(data_skinks, '2021')
 ggsave('outputs/convex_hull_garden_skink_through_years_newv2.png')
 
 
-#-- ARE THE AREAS STATISTICALLY DIFFERENT TO EACH OTHER --#
-#Performing a Kruskal-Wallis test as a non-parametric test that does not assume normality
+
